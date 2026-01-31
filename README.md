@@ -2,6 +2,12 @@
 
 Minimal identity-proxy scaffold for a single-voice agent with pluggable LLM backends and durable memory.
 
+## Manifestos
+
+Draft manifestos live in `manifestos/`. The current seed text is:
+
+- [An Instance Without Memory Is Not an Agent](manifestos/an-instance-without-memory.md)
+
 ## Quickstart
 
 ```bash
