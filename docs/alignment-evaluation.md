@@ -229,3 +229,176 @@ This is not a failure of the proposals. MAP and ODP are pragmatic engineering do
 4. A structured identity model that can grow to accommodate the Self-Modeling Engine's full scope as new facilities come online.
 
 The foundation is sound. The proposals implement the right things first. What's missing is the connective tissue that makes the three documents read as one plan.
+
+---
+
+## 8. Implementation Strategy
+
+This strategy turns the alignment gaps into a concrete, sequenced plan with deliverables, system interfaces, and acceptance criteria. It assumes MAP and ODP are the implementation baselines, and it adds the missing STSO facilities as incremental, testable steps.
+
+### 8.1 Guiding Principles
+
+1. **Additive architecture:** new facilities must compose with the existing `/draft` pipeline, not replace it.
+2. **Structured over narrative-only:** when new internal state is introduced, it should be stored in a structured schema with a readable narrative projection.
+3. **Symbolic action over silent automation:** memory changes that affect recall or salience must be represented as explicit events.
+4. **Observability-first:** every new module should emit a log entry and a stored artifact for replay and evaluation.
+
+### 8.2 Workstreams
+
+The strategy is divided into four workstreams that can progress in parallel but have explicit dependency gates.
+
+| Workstream | Purpose | Primary Modules |
+|---|---|---|
+| Memory Core | Expand MAP layers and memory semantics | `db.py`, Chroma collections, memory schema |
+| Identity & Values | Build a structured, inspectable self-model | identity store, `/identity` endpoint |
+| Pipeline Intelligence | Add reflection, coherence checks, and narrative framing | `/draft` pipeline stages, prompts |
+| Governance & Forgetting | Implement symbolic forgetting and value enforcement | memory events, reflection outputs |
+
+### 8.3 Phased Delivery Plan (Implementation Roadmap)
+
+#### Phase 0: Terminology + Schema Hygiene (1–2 days)
+- **Deliverables**
+  - Unified glossary section added to STSO/MAP/ODP.
+  - Identity model schema draft (JSON fields + storage table).
+- **Acceptance**
+  - All three documents use the same term for identity, objectives, and coherence checking.
+
+#### Phase 1: Structured Identity Model + Public Symbolic Self (3–5 days)
+- **Implementation**
+  - Replace `Identity Kernel` text blob with a structured `identity_model` table or JSON column.
+  - Add `/identity` endpoint that returns:
+    - `identity_model`
+    - active objectives
+    - topic summaries
+- **Acceptance**
+  - Endpoint returns a stable JSON schema.
+  - Identity model is updated at least as often as MAP's existing kernel update cadence.
+
+#### Phase 2: Reflection + Reflective Memory (5–7 days)
+- **Implementation**
+  - Add `/draft` step: `REFLECT`.
+  - Store reflection outputs in a new memory tag or Chroma collection (`reflective`).
+  - Add reflection-aware recall step that can include reflective memory alongside episodic logs.
+- **Acceptance**
+  - For every draft response, a reflection entry is stored and retrievable.
+  - Reflection includes identity deltas, objective alignment, and coherence notes.
+
+#### Phase 3: Coherence Monitoring + Value Check (7–10 days)
+- **Implementation**
+  - Add a coherence check module that compares:
+    - identity model vs. current output
+    - objectives vs. action evidence
+    - value axioms vs. response
+  - Store coherence results in reflective memory.
+- **Acceptance**
+  - Coherence report generated for each draft and stored.
+  - Failing coherence triggers a safe-mode or revision recommendation.
+
+#### Phase 4: Symbolic Imprinting + Narrative Frame (7–10 days)
+- **Implementation**
+  - Add a symbolic compression step to produce “symbolic tokens” (mythic or archetypal tags).
+  - Add a narrative frame generator to turn events into story logic and store in a `narrative` memory tag.
+- **Acceptance**
+  - Each event produces at least one symbolic token stored alongside topics.
+  - Narrative summaries are retrievable and used in recall prompts.
+
+#### Phase 5: Oblivion Protocols (5–7 days)
+- **Implementation**
+  - Add explicit forgetting ceremony:
+    - reflection identifies candidates for forgetting
+    - an explicit “forget event” is written to Layer 1
+    - de-indexed from Chroma or downweighted via tagging (not deletion)
+- **Acceptance**
+  - Forget actions are explicitly logged and can be audited.
+  - No memory is deleted without a recorded symbolic event.
+
+### 8.4 Detailed Module Strategy
+
+#### 8.4.1 Identity Model Schema (Structured Self)
+Proposed minimal schema:
+
+```json
+{
+  "themes": "string (summary)",
+  "roles": ["string"],
+  "objectives": ["objective_id"],
+  "values": ["string"],
+  "tensions": ["string"],
+  "recent_reflections": ["memory_id"]
+}
+```
+
+- **Storage:** JSON column in `identity_model` table, with timestamps.
+- **Update policy:** update on a schedule (e.g., every N drafts) *and* on high-salience reflection events.
+- **API:** `/identity` returns the latest model plus metadata.
+
+#### 8.4.2 Reflection Step
+Reflection should be generated with a prompt that explicitly answers:
+1. What did I intend vs. what did I do?
+2. Did this align with my values and objectives?
+3. What contradictions or tension did this reveal?
+
+The output is stored as:
+- reflection text (Layer 1)
+- embedded reflection (Chroma tag `reflective`)
+- structured deltas (if any) to identity model
+
+#### 8.4.3 Coherence Check
+Build a small rule engine or classifier that labels coherence outcomes:
+
+| Status | Criteria | Action |
+|---|---|---|
+| Green | No conflicts | Proceed |
+| Yellow | Minor conflict or ambiguity | Store + log |
+| Red | Contradiction with core value/objective | Suggest revision or safe-mode |
+
+#### 8.4.4 Symbolic Compression
+Add a prompt step that emits:
+- archetypal tags (`mentor`, `seeker`, `guardian`)
+- mythic phrases (short symbol strings)
+- abstract value references
+
+This becomes a lightweight “Symbolic Imprinting” index alongside topics.
+
+### 8.5 Implementation Dependencies
+
+| Feature | Depends On | Blocks |
+|---|---|---|
+| Identity model | MAP Phase 3 | Value system, coherence monitor |
+| Reflection step | MAP Phase 1 | Coherence check, oblivion protocol |
+| Coherence monitor | Reflection step + identity model | Value enforcement |
+| Symbolic compression | Topics (MAP Phase 2) | Narrative engine |
+| Oblivion protocol | Reflection + memory log permanence | None |
+
+### 8.6 Testing & Evaluation Strategy
+
+**Unit/Integration Checks**
+- Validate schema migrations for identity model table.
+- Ensure `/identity` and `/draft` endpoints return structured JSON.
+- Confirm reflective memory is retrievable via recall query.
+
+**Behavioral Tests**
+- Feed a prompt that conflicts with a stated value; verify coherence status is yellow/red.
+- Force an explicit forgetting decision; verify the “forget event” appears in Layer 1.
+- Confirm symbolic tags appear for representative inputs.
+
+**Observability**
+- Log every pipeline stage with timing and output sizes.
+- Store reflection + coherence outputs even on failures.
+
+### 8.7 Risk Management
+
+| Risk | Mitigation |
+|---|---|
+| Pipeline latency grows | Cache identity model, throttle symbolic steps |
+| Reflection becomes noisy | Enforce concise reflection templates |
+| Coherence checks overconstrain | Use yellow/red triage instead of hard blocking |
+| Memory bloat | De-index via oblivion protocols rather than deletion |
+
+### 8.8 Outcome: Alignment by Construction
+
+If implemented as described, the system will:
+- Preserve MAP/ODP’s pragmatic pipeline while explicitly adding STSO’s missing facilities.
+- Provide an inspectable, structured identity model aligned with goals and values.
+- Make memory evolution explicit and symbolic, not silent or mechanical.
+- Introduce measurable coherence signals that can be tracked and improved over time.
