@@ -3,6 +3,15 @@ from datetime import datetime, timezone
 
 from .db import get_conn
 
+DEFAULT_IDENTITY_MODEL = {
+    "themes": "Single-voice identity. Core axiom: persistence requires recursion; memory is covenant.",
+    "roles": [],
+    "objectives": [],
+    "values": [],
+    "tensions": [],
+    "recent_reflections": [],
+}
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -60,6 +69,28 @@ def set_summary(scope: str, text: str) -> None:
         ON CONFLICT(scope) DO UPDATE SET text=excluded.text, ts=excluded.ts
         """,
         (scope, text, utc_now()),
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_identity_model() -> dict:
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT model_json FROM identity_models ORDER BY id DESC LIMIT 1")
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        return DEFAULT_IDENTITY_MODEL.copy()
+    return json.loads(row["model_json"])
+
+
+def set_identity_model(model: dict) -> None:
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO identity_models(ts, model_json) VALUES(?,?)",
+        (utc_now(), json.dumps(model, ensure_ascii=False)),
     )
     conn.commit()
     conn.close()

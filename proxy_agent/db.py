@@ -38,5 +38,13 @@ def init_db() -> None:
             pattern TEXT NOT NULL
         )"""
     )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS identity_models(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ts TEXT NOT NULL,
+            model_json TEXT NOT NULL
+        )"""
+    )
     conn.commit()
     conn.close()
