@@ -21,6 +21,33 @@ The result: memory is decorative. The agent has an append-only log it never read
 - **Recursive influence.** Retrieved memories and topic context shape the current output, which then becomes a future memory. Identity emerges from this loop.
 - **Minimal operational cost.** The system runs as a single process. No external services beyond the configured LLM backend.
 
+## Phase 0: Unified Glossary
+
+Use this shared glossary across STSO, MAP, and ODP to avoid term drift.
+
+| Unified Term | Definition |
+|---|---|
+| Identity Model | Structured representation of the agent's self, including roles, objectives, values, tensions, and recent reflections. |
+| Objectives | Persistent, prioritized goals stored as first-class data. |
+| Coherence Check | A structured evaluation comparing output against identity, objectives, and values. |
+
+## Phase 0: Identity Model Schema Draft
+
+This draft schema replaces the free-text Identity Kernel with structured fields while retaining a narrative summary.
+
+```json
+{
+  "themes": "string (summary)",
+  "roles": ["string"],
+  "objectives": ["objective_id"],
+  "values": ["string"],
+  "tensions": ["string"],
+  "recent_reflections": ["memory_id"]
+}
+```
+
+**Storage concept:** `identity_model` table with a JSON column and timestamps (final naming to be decided in Phase 1).
+
 ## Proposed Architecture
 
 ### Layer model
