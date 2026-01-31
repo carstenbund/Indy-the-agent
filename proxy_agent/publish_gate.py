@@ -4,6 +4,7 @@ from .db import get_conn
 
 DEFAULT_BLOCK_PATTERNS = [
     r"sk-[A-Za-z0-9]{20,}",
+    r"sk-ant-[A-Za-z0-9\-]{20,}",
     r"Bearer\s+[A-Za-z0-9\-\._~\+\/]+=*",
     r"-----BEGIN [A-Z ]+PRIVATE KEY-----",
 ]

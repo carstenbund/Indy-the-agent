@@ -47,6 +47,49 @@ def call_ollama(
     return data["message"]["content"]
 
 
+def call_claude(
+    model: str,
+    messages: list[dict],
+    api_key: str,
+    base_url: str = "https://api.anthropic.com",
+    temperature: float = 0.4,
+    max_tokens: int = 4096,
+) -> str:
+    """Call the Anthropic Messages API.
+
+    The Anthropic API uses a different auth scheme (x-api-key) and separates
+    the system prompt from the messages list.
+    """
+    url = base_url.rstrip("/") + "/v1/messages"
+    headers = {
+        "x-api-key": api_key,
+        "anthropic-version": "2023-06-01",
+        "Content-Type": "application/json",
+    }
+
+    # Extract system prompt from messages; Anthropic expects it as a top-level field.
+    system_text = None
+    user_messages = []
+    for msg in messages:
+        if msg["role"] == "system":
+            system_text = msg["content"]
+        else:
+            user_messages.append({"role": msg["role"], "content": msg["content"]})
+
+    payload: dict = {
+        "model": model,
+        "messages": user_messages,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+    }
+    if system_text:
+        payload["system"] = system_text
+
+    data = _post_json(url, headers, payload)
+    # The Anthropic response nests content in a list of content blocks.
+    return data["content"][0]["text"]
+
+
 def route_call(messages: list[dict], purpose: str) -> str:
     """
     purpose: 'draft' | 'voice' | 'summarize'
@@ -63,5 +106,13 @@ def route_call(messages: list[dict], purpose: str) -> str:
     if backend == "ollama":
         ollama_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
         return call_ollama(model, messages, base_url=ollama_url, temperature=temp)
+    if backend == "claude":
+        claude_url = os.environ.get("ANTHROPIC_BASE_URL", "https://api.anthropic.com")
+        api_key = os.environ["ANTHROPIC_API_KEY"]
+        max_tokens = int(os.environ.get(f"LLM_{purpose.upper()}_MAX_TOKENS", "4096"))
+        return call_claude(
+            model, messages, api_key, base_url=claude_url,
+            temperature=temp, max_tokens=max_tokens,
+        )
 
     raise LLMError(f"Unknown backend: {backend}")
