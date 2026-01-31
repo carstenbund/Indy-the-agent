@@ -19,6 +19,33 @@ An agent with memory but no goals is an archivist, not an agent.
 - **Objective-aware generation.** When drafting content, the agent considers its active objectives. Outputs are shaped not just by memory of the past but by intent toward the future.
 - **Self-directed evolution.** The agent can propose new objectives and retire completed or abandoned ones. Objectives are not only user-assigned -- they emerge from the agent's own activity and reflection.
 
+## Phase 0: Unified Glossary
+
+Use this shared glossary across STSO, MAP, and ODP to avoid term drift.
+
+| Unified Term | Definition |
+|---|---|
+| Identity Model | Structured representation of the agent's self, including roles, objectives, values, tensions, and recent reflections. |
+| Objectives | Persistent, prioritized goals stored as first-class data. |
+| Coherence Check | A structured evaluation comparing output against identity, objectives, and values. |
+
+## Phase 0: Identity Model Schema Draft
+
+The objectives system expects a structured identity model to reference objective IDs directly.
+
+```json
+{
+  "themes": "string (summary)",
+  "roles": ["string"],
+  "objectives": ["objective_id"],
+  "values": ["string"],
+  "tensions": ["string"],
+  "recent_reflections": ["memory_id"]
+}
+```
+
+**Storage concept:** `identity_model` table with JSON + timestamps (details finalized in Phase 1).
+
 ## Design Principles
 
 1. **Objectives are first-class data, not prompt text.** They live in the database, not embedded in system prompts. Prompts reference them; they don't contain them.

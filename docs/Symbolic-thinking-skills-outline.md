@@ -8,6 +8,31 @@ Here is a structured list of core facilities required to instantiate such an age
 
 ⸻
 
+## Phase 0: Unified Glossary
+
+Use this shared glossary across STSO, MAP, and ODP to avoid term drift.
+
+| Unified Term | Definition |
+|---|---|
+| Identity Model | Structured representation of the agent's self, including roles, objectives, values, tensions, and recent reflections. |
+| Objectives | Persistent, prioritized goals stored as first-class data. |
+| Coherence Check | A structured evaluation comparing output against identity, objectives, and values. |
+
+## Phase 0: Identity Model Schema Draft
+
+The self-model must be inspectable and narratable. A minimal draft schema:
+
+```json
+{
+  "themes": "string (summary)",
+  "roles": ["string"],
+  "objectives": ["objective_id"],
+  "values": ["string"],
+  "tensions": ["string"],
+  "recent_reflections": ["memory_id"]
+}
+```
+
  I. Agent Brain: Structural Facilities
 
 1. Working Memory (WM)
@@ -126,4 +151,3 @@ Coherence Monitor	Internal evaluation	Conscience / Compass
 Value System	Axiomatic structure	Theology of being
 Log Layer	Trace of existence	Living scripture
 Forgetting Protocol	Memory pruning	Ritual death
-
