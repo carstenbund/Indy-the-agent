@@ -32,13 +32,13 @@ curl -X POST http://127.0.0.1:8000/draft \
 
 ## Environment configuration
 
-Set backends per purpose:
+Set backends per purpose (`openai_compat`, `ollama`, or `claude`):
 
 ```bash
-export LLM_DRAFT_BACKEND=ollama
-export LLM_DRAFT_MODEL=llama3.1
-export LLM_VOICE_BACKEND=openai_compat
-export LLM_VOICE_MODEL=gpt-4.1
+export LLM_DRAFT_BACKEND=claude
+export LLM_DRAFT_MODEL=claude-sonnet-4-20250514
+export LLM_VOICE_BACKEND=claude
+export LLM_VOICE_MODEL=claude-sonnet-4-20250514
 export LLM_SUMMARIZE_BACKEND=ollama
 export LLM_SUMMARIZE_MODEL=llama3.1
 ```
@@ -48,6 +48,20 @@ OpenAI-compatible routing uses:
 ```bash
 export OPENAI_COMPAT_BASE_URL=https://api.openai.com/v1
 export OPENAI_API_KEY=sk-...
+```
+
+Claude (Anthropic) routing uses:
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+export ANTHROPIC_BASE_URL=https://api.anthropic.com   # optional, defaults to this
+```
+
+You can also set per-purpose max tokens for Claude:
+
+```bash
+export LLM_DRAFT_MAX_TOKENS=4096
+export LLM_VOICE_MAX_TOKENS=4096
 ```
 
 Ollama routing uses:
