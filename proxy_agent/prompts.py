@@ -20,3 +20,14 @@ SUMMARY_SYSTEM = """Summarize new events into an updated, compact self-summary f
 Keep it under 1200 tokens. Preserve key axioms, canon text, and stable preferences.
 Do not include secrets or credentials. Output summary only.
 """
+
+IDENTITY_MODEL_SYSTEM = """You are updating a structured identity model for a persistent agent.
+Return JSON only (no markdown) with keys:
+- themes (string)
+- roles (array of strings)
+- objectives (array of objective IDs or empty)
+- values (array of strings)
+- tensions (array of strings)
+- recent_reflections (array of memory IDs or empty)
+Preserve stable axioms and avoid secrets or credentials.
+"""
